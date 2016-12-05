@@ -3,7 +3,7 @@ module NavbarHelper
   def nav_bar(options={}, &block)
     nav_bar_div(options) do
       navbar_inner_div do
-        container_div(options[:brand], options[:brand_link], options[:brand_html_left], options[:brand_html_right], options[:responsive], options[:fluid]) do
+        container_div(options[:brand], options[:brand_link], options[:responsive], options[:fluid]) do
           yield if block_given?
         end
       end
@@ -76,8 +76,6 @@ module NavbarHelper
   #   uri_state('/blog/categories/test', {method: delete}) # :inactive
   #   uri_state('/blog/categories/test/3', {})             # :inactive
   def uri_state(uri, options={})
-    return options[:status] if options.key?(:status)
-
     root_url = request.host_with_port + '/'
     root = uri == '/' || uri == root_url
 
@@ -89,7 +87,7 @@ module NavbarHelper
 
     if !options[:method].nil? || !options["data-method"].nil?
       :inactive
-    elsif uri == request_uri || (options[:root] && (request_uri == '/') || (request_uri == root_url))
+    elsif uri == request_uri
       :active
     else
       if request_uri.start_with?(uri) and not(root)
@@ -98,7 +96,7 @@ module NavbarHelper
         :inactive
       end
     end
-  end
+  end  
 
   private
 
@@ -119,20 +117,20 @@ module NavbarHelper
     end
   end
 
-  def container_div(brand, brand_link, brand_html_left, brand_html_right, responsive, fluid, &block)
+  def container_div(brand, brand_link, responsive, fluid, &block)
     content_tag :div, :class => "container#{"-fluid" if fluid}" do
-      container_div_with_block(brand, brand_link, brand_html_left, brand_html_right, responsive, &block)
+      container_div_with_block(brand, brand_link, responsive, &block)
     end
   end
 
-  def container_div_with_block(brand, brand_link, brand_html_left, brand_html_right, responsive, &block)
+  def container_div_with_block(brand, brand_link, responsive, &block)
     output = []
     if responsive == true
       output << responsive_button
-      output << brand_link(brand, brand_link, brand_html_left, brand_html_right)
+      output << brand_link(brand, brand_link)
       output << responsive_div { capture(&block) }
     else
-      output << brand_link(brand, brand_link, brand_html_left, brand_html_right)
+      output << brand_link(brand, brand_link)
       output << capture(&block)
     end
     output.join("\n").html_safe
@@ -145,15 +143,10 @@ module NavbarHelper
     css_class.join(" ")
   end
 
-  def brand_link(name, url, brand_html_left, brand_html_right)
+  def brand_link(name, url)
     return "" if name.blank?
     url ||= root_url
-
-    output = []
-    output << '<div class="brand_html_left">' + brand_html_left + '</div>' if brand_html_left
-    output << link_to(name, url, :class => "brand")
-    output << '<div class="brand_html_right">' + brand_html_right + '</div>' if brand_html_right
-    output.join("\n").html_safe
+    link_to(name, url, :class => "brand")
   end
 
   def responsive_button
@@ -169,8 +162,7 @@ module NavbarHelper
   end
 
   def is_active?(path, options={})
-    state = uri_state(path, options)
-    "active" if state.in?([:active, :chosen]) || state === true
+    "active" if uri_state(path, options).in?([:active, :chosen])
   end
 
   def name_and_caret(name)
