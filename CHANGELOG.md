@@ -52,6 +52,10 @@
   <li>Releases gem v.2.2.8</li>
   <li>Releases gem v.3.2.1</li>
   <li>Releases gem v.3.2.2</li>
+<<<<<<< HEAD
   <li>Dropped FontAwesome support, see #889</li>
   <li>Releases gem v.4.0.0> (master changes)<li>
 </ul>
+=======
+</ul>
+>>>>>>> parent of 9e79ce9 (Added changelog entry.)
